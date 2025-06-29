@@ -106,18 +106,6 @@
       cursor: pointer;
     }
   </style>
-
-<script type="text/javascript">
-(function(i,s,o,g,r,a,m,n){i['moengage_object']=r;var t={},q=function(f){return function(){(i[r].q=i[r].q||[]).push([f,arguments])}};var f=['track_event','add_user_attribute','add_first_name','add_last_name','add_email','add_mobile','add_user_name','add_gender','add_birthday','destroy_session'];for(var k=0;k<f.length;k++){t[f[k]]=q(f[k])}i[r]=t;a=s.createElement(o);m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})
-(window,document,'script','https://cdn.moengage.com/webpush/moe-web-sdk.min.latest.js','Moengage');
-
-Moengage = Moengage || {}
-Moengage.init({
-  app_id: "NIVAUUN9DMI0RXNZ3QKZCUHO",
-  debug_logs: 1
-});
-</script>
-
 </head>
 <body>
   <div class="header">
@@ -135,18 +123,28 @@ Moengage.init({
     </div>
   </div>
 
-  
-
-
-
-
-
-<script>
-
+  <script>
     const chat = document.getElementById("chat");
     const progress = document.getElementById("progress");
 
-    const questions = {
+    
+    const userInfoQuestions = {
+      en: [
+        { q: "Hi! What’s your name?", a: [], t: "name" },
+        { q: "Great! Can I have your email?", a: [], t: "email" },
+        { q: "And your mobile number?", a: [], t: "mobile" },
+        { q: "Finally, where are you from?", a: [], t: "location" }
+      ],
+      ml: [
+        { q: "ഹായ്! നിങ്ങളുടെ പേര് എന്താണ്?", a: [], t: "name" },
+        { q: "നന്ദി! നിങ്ങളുടെ ഇമെയിൽ ആണോ?", a: [], t: "email" },
+        { q: "നിങ്ങളുടെ മൊബൈൽ നമ്പർ?", a: [], t: "mobile" },
+        { q: "നിങ്ങൾ എവിടെയാണ് താമസിക്കുന്നത്?", a: [], t: "location" }
+      ]
+    };
+
+
+const questions = {
       en: [
         { q: "Do you maintain a monthly budget?", a: ["Yes", "No"], s: [2, 0], t: "health" },
         { q: "What portion of your income do you save?", a: ["<10%", "10–20%", "20–30%", "30%+"], s: [0, 1, 2, 3], t: "health" },
@@ -166,7 +164,22 @@ Moengage.init({
 
     let lang = "en", i = 0, h = 0, r = 0, g = "", e = "";
 
-    function startChat(selected) {
+    
+
+function startChat(selected) {
+  lang = selected;
+  document.getElementById("langSelect").remove();
+  i = 0; userInfoPhase = true;
+  askUserInfo();
+}
+
+  lang = selected;
+  document.getElementById("langSelect").remove();
+  i = 0; // for user info questions
+  userInfoPhase = true;
+  askUserInfo();
+}
+
       lang = selected;
       document.getElementById("langSelect").remove();
       ask();
@@ -207,7 +220,7 @@ Moengage.init({
     function reply(text, score, type) {
       const u = document.createElement("div");
       u.className = "message user";
-      u.innerHTML = `<div class="bubble">${text}</div>`;
+      u.innerHTML = `<img src="https://img.icons8.com/color/48/user.png" class="avatar"/><div class="bubble">${text}</div>`;
       chat.appendChild(u);
       document.querySelectorAll(".response-buttons").forEach(e => e.remove());
       if (type === "health") h += score;
@@ -240,15 +253,52 @@ Moengage.init({
       chat.appendChild(res);
     }
 
-    function updateProgress() {
+    
+let userData = {}, userInfoPhase = true;
+function askUserInfo() {
+  const q = userInfoQuestions[lang][i];
+  const m = document.createElement("div");
+  m.className = "message bot";
+  m.innerHTML = `<span class="avatar" style="font-size:32px;margin:0 10px;">🧞‍♂️</span><div class="bubble">${q.q}</div>`;
+  chat.appendChild(m);
+
+  const inputDiv = document.createElement("div");
+  inputDiv.className = "response-buttons";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Type here...";
+  input.style = "padding:10px 14px; font-size:14px; width:70%; border-radius:12px; border:1px solid #ccc;";
+  input.onkeydown = (e) => {
+    if (e.key === "Enter") submitUserInfo(input.value.trim());
+  };
+  inputDiv.appendChild(input);
+  chat.appendChild(inputDiv);
+  input.focus();
+}
+
+function submitUserInfo(value) {
+  if (!value) return;
+  const key = userInfoQuestions[lang][i].t;
+  userData[key] = value;
+  const u = document.createElement("div");
+  u.className = "message user";
+  u.innerHTML = `<img src="https://img.icons8.com/color/48/user.png" class="avatar"/><div class="bubble">${value}</div>`;
+  chat.appendChild(u);
+  document.querySelectorAll(".response-buttons").forEach(e => e.remove());
+  i++;
+  if (i < userInfoQuestions[lang].length) {
+    askUserInfo();
+  } else {
+    i = 0; userInfoPhase = false;
+    ask();
+  }
+}
+
+function updateProgress() {
       const percent = Math.round((i + 1) / questions[lang].length * 100);
       progress.textContent = `${percent}%`;
     }
-  
-</script>
-
-
-
+  </script>
 
 <script>
 let userData = {}, userInfoPhase = true;
@@ -257,23 +307,16 @@ const userInfoQuestions = {
   en: [
     { q: "Hi! What’s your name?", a: [], t: "name" },
     { q: "Great! Can I have your email?", a: [], t: "email" },
-    { q: "And your mobile number?", a: [], t: "mobile" }
+    { q: "And your mobile number?", a: [], t: "mobile" },
+    { q: "Finally, where are you from?", a: [], t: "location" }
   ],
   ml: [
     { q: "ഹായ്! നിങ്ങളുടെ പേര് എന്താണ്?", a: [], t: "name" },
     { q: "നന്ദി! നിങ്ങളുടെ ഇമെയിൽ ആണോ?", a: [], t: "email" },
-    { q: "നിങ്ങളുടെ മൊബൈൽ നമ്പർ?", a: [], t: "mobile" }
+    { q: "നിങ്ങളുടെ മൊബൈൽ നമ്പർ?", a: [], t: "mobile" },
+    { q: "നിങ്ങൾ എവിടെയാണ് താമസിക്കുന്നത്?", a: [], t: "location" }
   ]
 };
-
-function startChat(selected) {
-  lang = selected;
-  const langBox = document.getElementById("langSelect");
-  if (langBox) langBox.remove();
-  i = 0;
-  userInfoPhase = true;
-  askUserInfo();
-}
 
 function askUserInfo() {
   const q = userInfoQuestions[lang][i];
@@ -299,20 +342,10 @@ function askUserInfo() {
 function submitUserInfo(value) {
   if (!value) return;
   const key = userInfoQuestions[lang][i].t;
-
-  if (key === "email" && (!value.includes("@") || !value.includes("."))) {
-    alert("Please enter a valid email address.");
-    return;
-  }
-  if (key === "mobile" && (!/^[0-9]{10}$/.test(value))) {
-    alert("Please enter a valid 10-digit mobile number.");
-    return;
-  }
-
   userData[key] = value;
   const u = document.createElement("div");
   u.className = "message user";
-  u.innerHTML = `<div class="bubble">${value}</div>`;
+  u.innerHTML = `<img src="https://img.icons8.com/color/48/user.png" class="avatar"/><div class="bubble">${value}</div>`;
   chat.appendChild(u);
   document.querySelectorAll(".response-buttons").forEach(e => e.remove());
   i++;
@@ -320,51 +353,8 @@ function submitUserInfo(value) {
     askUserInfo();
   } else {
     i = 0; userInfoPhase = false;
-    const transitionMsg = {
-      en: "Thanks for sharing those details! Now let’s do a quick Financial Health Checkup and understand your comfort with risk. 🧠📊",
-      ml: "വിവരങ്ങൾ പങ്കുവെച്ചതിൽ നന്ദി! ഇനി, നിങ്ങൾയുടെ സാമ്പത്തിക ആരോഗ്യവും റിസ്ക് മനോഭാവവും പരിശോധിക്കാം. 🧠📊"
-    };
-    const tMsg = document.createElement("div");
-    tMsg.className = "message bot";
-    tMsg.innerHTML = `<span class="avatar" style="font-size:32px;margin:0 10px;">🧞‍♂️</span><div class="bubble">${transitionMsg[lang]}</div>`;
-    chat.appendChild(tMsg);
-    setTimeout(() => ask(), 1400);
+    ask();
   }
-}
-</script>
-
-
-<script>
-function askLocation() {
-  const q = lang === 'ml' ? "നിങ്ങൾ എവിടെയാണ് താമസിക്കുന്നത്?" : "Where are you from?";
-  const m = document.createElement("div");
-  m.className = "message bot";
-  m.innerHTML = `<span class="avatar" style="font-size:32px;margin:0 10px;">🧞‍♂️</span><div class="bubble">${q}</div>`;
-  chat.appendChild(m);
-
-  const inputDiv = document.createElement("div");
-  inputDiv.className = "response-buttons";
-  const input = document.createElement("input");
-  input.type = "text";
-  input.placeholder = lang === 'ml' ? "താമസ സ്ഥലത്തിന്റെ പേര് എഴുതൂ..." : "Enter your location...";
-  input.style = "padding:10px 14px; font-size:14px; width:70%; border-radius:12px; border:1px solid #ccc;";
-  input.onkeydown = (e) => {
-    if (e.key === "Enter") {
-      const val = input.value.trim();
-      if (val.length > 1) {
-        userData["location"] = val;
-        const u = document.createElement("div");
-        u.className = "message user";
-        u.innerHTML = `<div class="bubble">${val}</div>`;
-        chat.appendChild(u);
-        document.querySelectorAll(".response-buttons").forEach(e => e.remove());
-        askLocation();
-      }
-    }
-  };
-  inputDiv.appendChild(input);
-  chat.appendChild(inputDiv);
-  input.focus();
 }
 </script>
 
