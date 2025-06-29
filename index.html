@@ -107,15 +107,23 @@
   </style>
 
 <script type="text/javascript">
-(function(i,s,o,g,r,a,m,n){i['moengage_object']=r;var t={},q=function(f){return function(){(i[r].q=i[r].q||[]).push([f,arguments])}};var f=['track_event','add_user_attribute','add_first_name','add_last_name','add_email','add_mobile','add_user_name','add_gender','add_birthday','destroy_session'];for(var k=0;k<f.length;k++){t[f[k]]=q(f[k])}i[r]=t;a=s.createElement(o);m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})
-(window,document,'script','https://cdn.moengage.com/webpush/moe-web-sdk.min.latest.js','Moengage');
+  (function(i,s,o,g,r,a,m,n){i['moengage_object']=r;
+  var t={},q=function(f){return function(){(i[r].q=i[r].q||[]).push([f,arguments])}};
+  var f=['track_event','add_user_attribute','add_first_name','add_last_name','add_email','add_mobile',
+         'add_user_name','add_gender','add_birthday','destroy_session'];
+  for(var k=0;k<f.length;k++){t[f[k]]=q(f[k])}
+  i[r]=t;
+  a=s.createElement(o);m=s.getElementsByTagName(o)[0];a.async=1;
+  a.src=g;m.parentNode.insertBefore(a,m)
+  })
+  (window,document,'script','https://cdn.moengage.com/webpush/moe-web-sdk.min.latest.js','Moengage');
 
-Moengage = Moengage || {}
-Moengage.init({
-  app_id: "NIVAUUN9DMI0RXNZ3QKZCUHO",
-  debug_logs: 1
-});
+  Moengage.init && Moengage.init({
+    app_id: "NIVAUUN9DMI0RXNZ3QKZCUHO",
+    debug_logs: 1
+  });
 </script>
+
 
 </head>
 <body>
